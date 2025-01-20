@@ -14,23 +14,23 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableMethodSecurity
 public class SecurityConfig {
 
+    // Password Encoding
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .csrf(csrf -> csrf.disable()) // Disable CSRF for simplicity
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/auth/welcome").permitAll() // Permit all access to /auth/welcome
-                .requestMatchers("/auth/user/**").authenticated() // Require authentication for /auth/user/**
-                .requestMatchers("/auth/admin/**").hasRole("ADMIN") // Only ADMIN role for /auth/admin/**
+                .requestMatchers("/api/**").permitAll() // Permit all access to /auth/welcome
+
                 .anyRequest().permitAll()  // Permit all other requests
             );
         
         return http.build();
     }
 
-    // Password Encoding
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+    
 }
