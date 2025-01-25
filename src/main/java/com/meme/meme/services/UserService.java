@@ -2,38 +2,49 @@ package com.meme.meme.services;
 
 import com.meme.meme.models.User;
 import com.meme.meme.repository.UserRepository;
-
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
-
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class UserService {
 
     @Autowired
-    private UserRepository userRepository; // Pastikan Anda memiliki repository untuk User
+    private UserRepository userRepository;
 
     @Autowired
-private PasswordEncoder passwordEncoder; // Ganti dari BCryptPasswordEncoder
+    private PasswordEncoder passwordEncoder;
 
-    // Memeriksa apakah username sudah ada
-    public boolean usernameExists(String username) {
-        return userRepository.findByUsername(username) != null;
-    }
+    // Method untuk mendaftarkan user baru
+    public void registerUser(User user) {
+        // Cek apakah username sudah ada
+        if (userRepository.findByUsername(user.getUsername()).isPresent()) {
+            throw new RuntimeException("Username sudah digunakan");
+        }
 
-    // Menyimpan user baru
-    public User registerUser(User user) {
-
+        // Enkode password sebelum disimpan
         String encodedPassword = passwordEncoder.encode(user.getPassword());
         user.setPassword(encodedPassword);
-        return userRepository.save(user);
+
+        // Simpan user baru ke database
+        userRepository.save(user);
     }
-     public List<User> getAllUsers() {
+
+    // Mengambil semua user
+    public List<User> getAllUsers() {
         return userRepository.findAll();
     }
-    
-}
 
+    // Mengambil user berdasarkan username
+    public User getUserByUsername(String username) {
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User tidak ditemukan dengan username: " + username));
+    }
+
+    // Mengecek apakah password yang diberikan cocok dengan password yang ter-encrypt
+    public boolean checkPassword(String rawPassword, String encodedPassword) {
+        return passwordEncoder.matches(rawPassword, encodedPassword);
+    }
+}

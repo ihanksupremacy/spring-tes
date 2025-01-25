@@ -25,4 +25,8 @@ public class User {
 
     @Field("role") // Contoh: "USER", "ADMIN"
     private String role;
+
+    public String getUsername() {
+        return username;
+    }
 }
